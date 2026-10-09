@@ -134,6 +134,12 @@ Số liệu từ bảng tổng hợp ở cuối NB3b (chạy trên tập con c�
 
 DPO-norm và ORPO làm câu trả lời ngắn đi nhiều nhất (khoảng 346 ký tự, ngắn hơn DPO khoảng 24%). Giả thuyết dựa trên công thức: cả hai dùng log-xác suất trung bình theo token thay vì tổng, nên câu dài không còn "lợi thế" hay "bất lợi" từ việc cộng nhiều token. Tôi chưa có bằng chứng cho cơ chế này, vì bảng chỉ so với DPO chứ không so với độ dài của SFT trên cùng 20 câu hỏi.
 
+**Trả lời các câu hỏi của NB3b:**
+
+1. *Biến thể nào làm đầu ra dài ra nhiều nhất? Có khớp tỉ lệ "chosen dài hơn" (65,9%) ở NB2 không?* Không biến thể nào làm câu trả lời dài hơn rõ rệt: DPO (457,8) và LD-DPO (456,7) dài nhất, còn DPO-norm (346,9) và ORPO (346,1) ngắn nhất. Hướng này phù hợp với thiên vị độ dài của dữ liệu: vì `chosen` dài hơn trong khoảng hai phần ba số cặp, DPO gốc (cộng log-xác suất theo tổng token) có xu hướng giữ độ dài, còn hai biến thể chuẩn hoá theo số token bỏ đi xu hướng đó nên ngắn hơn. Nhưng bảng NB3b không có độ dài của SFT trên cùng 20 câu hỏi nên tôi không khẳng định được DPO có làm dài ra; ở NB4 DPO đầy đủ cũng không dài hơn SFT (616,7 → 616,0 ký tự).
+2. *RPO có giữ `rewards/chosen` dương trong khi DPO thì không?* Trong lần chạy này, DPO cũng giữ `chosen` dương (+0,090) và chẩn đoán INTENDED, nên giả định "DPO thì không" không đúng với dữ liệu của tôi. RPO vẫn giữ `chosen` cao hơn nhiều (+0,553, gấp khoảng 6 lần), phù hợp với việc thêm NLL của `chosen` vào loss. Hai biến thể có `chosen` âm là DPO-norm (−0,174) và LD-DPO (−0,128), cả hai bị chẩn đoán LIKELIHOOD DISPLACEMENT. Thang reward giữa các biến thể khác nhau nên đây chỉ là so sánh gần đúng.
+3. *Độ chính xác reward cao hơn có nghĩa là mô hình tốt hơn không?* Không nhất thiết. Độ chính xác reward chỉ đo mô hình có xếp `chosen` trên `rejected` so với reference trên dữ liệu held-out, không đo chất lượng câu trả lời sinh ra. Bằng chứng trong bài: DPO có độ chính xác 0,70 nhưng win rate trước giám khảo chỉ 0,50 (CI [0,41–0,58]); RPO có độ chính xác thấp hơn (0,64) nhưng giữ `chosen` cao hơn nhiều. Tôi chưa chạy giám khảo NB4 trên các adapter `adapters/variants/<name>` (cần `DPO_ADAPTER_OVERRIDE`), nên chưa có bằng chứng trực tiếp biến thể nào sinh câu trả lời tốt hơn.
+
 ---
 
 ## 9. GRPO (bonus NB7)
